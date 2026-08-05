@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Tumor Decision Support System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🩺 Intelligent Tumor Decision Support System</h1>
+
+        <p>
+            Enter all 30 tumor feature values and click Predict.
+        </p>
+
+        <form id="predictionForm">
+
+            <div class="grid">
+
+                <input type="number" step="any" placeholder="Mean Radius" required>
+                <input type="number" step="any" placeholder="Mean Texture" required>
+                <input type="number" step="any" placeholder="Mean Perimeter" required>
+                <input type="number" step="any" placeholder="Mean Area" required>
+                <input type="number" step="any" placeholder="Mean Smoothness" required>
+
+                <input type="number" step="any" placeholder="Mean Compactness" required>
+                <input type="number" step="any" placeholder="Mean Concavity" required>
+                <input type="number" step="any" placeholder="Mean Concave Points" required>
+                <input type="number" step="any" placeholder="Mean Symmetry" required>
+                <input type="number" step="any" placeholder="Mean Fractal Dimension" required>
+
+                <input type="number" step="any" placeholder="Radius Error" required>
+                <input type="number" step="any" placeholder="Texture Error" required>
+                <input type="number" step="any" placeholder="Perimeter Error" required>
+                <input type="number" step="any" placeholder="Area Error" required>
+                <input type="number" step="any" placeholder="Smoothness Error" required>
+
+                <input type="number" step="any" placeholder="Compactness Error" required>
+                <input type="number" step="any" placeholder="Concavity Error" required>
+                <input type="number" step="any" placeholder="Concave Points Error" required>
+                <input type="number" step="any" placeholder="Symmetry Error" required>
+                <input type="number" step="any" placeholder="Fractal Dimension Error" required>
+
+                <input type="number" step="any" placeholder="Worst Radius" required>
+                <input type="number" step="any" placeholder="Worst Texture" required>
+                <input type="number" step="any" placeholder="Worst Perimeter" required>
+                <input type="number" step="any" placeholder="Worst Area" required>
+                <input type="number" step="any" placeholder="Worst Smoothness" required>
+
+                <input type="number" step="any" placeholder="Worst Compactness" required>
+                <input type="number" step="any" placeholder="Worst Concavity" required>
+                <input type="number" step="any" placeholder="Worst Concave Points" required>
+                <input type="number" step="any" placeholder="Worst Symmetry" required>
+                <input type="number" step="any" placeholder="Worst Fractal Dimension" required>
+
+            </div>
+
+            <button type="submit">
+                Predict
+            </button>
+
+        </form>
+
+        <div id="result"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
