@@ -4,73 +4,527 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intelligent Tumor Decision Support System</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="container">
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-icon">+</div>
 
-        <h1>🩺 Intelligent Tumor Decision Support System</h1>
+        <div>
+            <h2>Intelligent Tumor Decision Support System</h2>
+            <span>AI-Assisted Breast Tumor Risk Assessment</span>
+        </div>
+    </div>
 
-        <p>
-            Enter all 30 tumor feature values and click Predict.
-        </p>
+    <div class="system-status">
+        <span class="status-dot"></span>
+        AI System Online
+    </div>
+</header>
 
-        <form id="predictionForm">
 
-            <div class="grid">
+<main class="page">
 
-                <input type="number" step="any" placeholder="Mean Radius" required>
-                <input type="number" step="any" placeholder="Mean Texture" required>
-                <input type="number" step="any" placeholder="Mean Perimeter" required>
-                <input type="number" step="any" placeholder="Mean Area" required>
-                <input type="number" step="any" placeholder="Mean Smoothness" required>
+    <section class="hero">
+        <div>
+            <span class="eyebrow">
+                AI-ASSISTED CLINICAL DECISION SUPPORT
+            </span>
 
-                <input type="number" step="any" placeholder="Mean Compactness" required>
-                <input type="number" step="any" placeholder="Mean Concavity" required>
-                <input type="number" step="any" placeholder="Mean Concave Points" required>
-                <input type="number" step="any" placeholder="Mean Symmetry" required>
-                <input type="number" step="any" placeholder="Mean Fractal Dimension" required>
+            <h1>
+                Breast Tumor
+                <span>Risk Assessment</span>
+            </h1>
 
-                <input type="number" step="any" placeholder="Radius Error" required>
-                <input type="number" step="any" placeholder="Texture Error" required>
-                <input type="number" step="any" placeholder="Perimeter Error" required>
-                <input type="number" step="any" placeholder="Area Error" required>
-                <input type="number" step="any" placeholder="Smoothness Error" required>
+            <p>
+                Upload diagnostic measurements or manually enter the
+                30 tumor features required by the machine-learning model.
+                The system provides risk estimation for clinical decision support.
+            </p>
+        </div>
 
-                <input type="number" step="any" placeholder="Compactness Error" required>
-                <input type="number" step="any" placeholder="Concavity Error" required>
-                <input type="number" step="any" placeholder="Concave Points Error" required>
-                <input type="number" step="any" placeholder="Symmetry Error" required>
-                <input type="number" step="any" placeholder="Fractal Dimension Error" required>
+        <div class="hero-card">
+            <div class="hero-number">30</div>
 
-                <input type="number" step="any" placeholder="Worst Radius" required>
-                <input type="number" step="any" placeholder="Worst Texture" required>
-                <input type="number" step="any" placeholder="Worst Perimeter" required>
-                <input type="number" step="any" placeholder="Worst Area" required>
-                <input type="number" step="any" placeholder="Worst Smoothness" required>
+            <div>
+                <strong>Diagnostic Features</strong>
+                <p>Wisconsin Diagnostic Breast Cancer measurements</p>
+            </div>
+        </div>
+    </section>
 
-                <input type="number" step="any" placeholder="Worst Compactness" required>
-                <input type="number" step="any" placeholder="Worst Concavity" required>
-                <input type="number" step="any" placeholder="Worst Concave Points" required>
-                <input type="number" step="any" placeholder="Worst Symmetry" required>
-                <input type="number" step="any" placeholder="Worst Fractal Dimension" required>
+
+    <div class="dashboard">
+
+        <section class="form-panel">
+
+            <div class="section-heading">
+                <div>
+                    <span class="section-number">01</span>
+                    <h2>Patient Diagnostic Data</h2>
+                </div>
+            </div>
+
+            <p class="section-description">
+                Choose one of the available input methods below.
+            </p>
+
+
+            <!-- INPUT METHOD CARDS -->
+
+            <div class="input-methods">
+
+                <div class="input-method-card">
+                    <div class="method-icon">CSV</div>
+
+                    <div>
+                        <h3>Upload CSV</h3>
+                        <p>
+                            Upload a CSV containing the 30 diagnostic tumor features.
+                        </p>
+                    </div>
+
+                    <label class="upload-button">
+                        Choose CSV
+                        <input
+                            type="file"
+                            id="csvFile"
+                            accept=".csv"
+                            hidden
+                        >
+                    </label>
+
+                    <div
+                        id="csvStatus"
+                        class="csv-status"
+                    >
+                        No file selected
+                    </div>
+                </div>
+
+
+                <div class="input-method-card">
+
+                    <div class="method-icon">S</div>
+
+                    <div>
+                        <h3>Load Sample Case</h3>
+                        <p>
+                            Automatically populate a sample tumor record for demo testing.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="sampleButton"
+                        class="secondary-button"
+                    >
+                        Load Sample
+                    </button>
+
+                </div>
+
+
+                <div class="input-method-card">
+
+                    <div class="method-icon">M</div>
+
+                    <div>
+                        <h3>Manual Entry</h3>
+                        <p>
+                            Enter all diagnostic measurements manually.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="manualToggle"
+                        class="secondary-button"
+                    >
+                        Open Manual Form
+                    </button>
+
+                </div>
 
             </div>
 
-            <button type="submit">
-                Predict
-            </button>
 
-        </form>
+            <!-- DATA STATUS -->
 
-        <div id="result"></div>
+            <div class="data-status-card">
+
+                <div>
+                    <span class="data-status-label">
+                        INPUT STATUS
+                    </span>
+
+                    <strong id="inputStatus">
+                        Waiting for tumor measurements
+                    </strong>
+                </div>
+
+                <div id="featureCount">
+                    0 / 30
+                </div>
+
+            </div>
+
+
+            <!-- MANUAL FORM -->
+
+            <form id="predictionForm">
+
+                <div
+                    id="manualSection"
+                    class="manual-section"
+                >
+
+                    <!-- MEAN FEATURES -->
+
+                    <div class="feature-section">
+
+                        <div class="feature-title">
+                            <span>Mean Measurements</span>
+                            <small>10 features</small>
+                        </div>
+
+                        <div class="grid">
+
+                            <label>
+                                Mean Radius
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Texture
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Perimeter
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Area
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Smoothness
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Compactness
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Concavity
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Concave Points
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Symmetry
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Mean Fractal Dimension
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ERROR FEATURES -->
+
+                    <div class="feature-section">
+
+                        <div class="feature-title">
+                            <span>Measurement Errors</span>
+                            <small>10 features</small>
+                        </div>
+
+                        <div class="grid">
+
+                            <label>
+                                Radius Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Texture Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Perimeter Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Area Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Smoothness Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Compactness Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Concavity Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Concave Points Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Symmetry Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Fractal Dimension Error
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- WORST FEATURES -->
+
+                    <div class="feature-section">
+
+                        <div class="feature-title">
+                            <span>Worst Measurements</span>
+                            <small>10 features</small>
+                        </div>
+
+                        <div class="grid">
+
+                            <label>
+                                Worst Radius
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Texture
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Perimeter
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Area
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Smoothness
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Compactness
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Concavity
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Concave Points
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Symmetry
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                            <label>
+                                Worst Fractal Dimension
+                                <input class="feature-input" type="number" step="any" required>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="analyzeButton"
+                    class="analyze-button"
+                    type="submit"
+                >
+                    <span>Analyze Tumor Risk</span>
+                    <span class="arrow">→</span>
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- RESULT PANEL -->
+
+        <aside class="result-panel">
+
+            <div class="result-header">
+                <span class="section-number">02</span>
+                <h2>AI Assessment</h2>
+            </div>
+
+
+            <div
+                id="emptyState"
+                class="empty-state"
+            >
+
+                <div class="scan-icon">
+                    <div></div>
+                </div>
+
+                <h3>Awaiting Analysis</h3>
+
+                <p>
+                    Upload or enter diagnostic tumor measurements
+                    to generate the AI assessment.
+                </p>
+
+            </div>
+
+
+            <div
+                id="loadingState"
+                class="loading-state"
+            >
+
+                <div class="spinner"></div>
+
+                <h3>
+                    Analyzing tumor characteristics...
+                </h3>
+
+                <p>
+                    Running machine-learning inference
+                </p>
+
+            </div>
+
+
+            <div
+                id="result"
+                class="result-content"
+            >
+
+                <div
+                    id="riskBadge"
+                    class="risk-badge"
+                >
+                    Risk Assessment
+                </div>
+
+                <h3 id="predictionText">
+                    --
+                </h3>
+
+                <p class="probability-label">
+                    Malignant Probability
+                </p>
+
+                <div
+                    id="probabilityValue"
+                    class="probability-value"
+                >
+                    0%
+                </div>
+
+                <div class="probability-track">
+                    <div id="probabilityBar"></div>
+                </div>
+
+
+                <div class="result-grid">
+
+                    <div class="metric-card">
+                        <span>Risk Level</span>
+                        <strong id="riskLevel">
+                            --
+                        </strong>
+                    </div>
+
+
+                    <div class="metric-card">
+                        <span>Decision Threshold</span>
+                        <strong id="thresholdValue">
+                            --
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="clinical-note">
+
+                    <strong>
+                        Clinical Decision Support Notice
+                    </strong>
+
+                    <p>
+                        This system is intended for decision support and
+                        research purposes. The output does not replace
+                        professional medical judgement or diagnostic procedures.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </aside>
 
     </div>
 
-    <script src="script.js"></script>
+</main>
+
+
+<footer>
+    Intelligent Tumor Decision Support System
+    · Explainable and Reproducible MLOps Platform
+</footer>
+
+
+<script src="script.js"></script>
 
 </body>
 </html>
