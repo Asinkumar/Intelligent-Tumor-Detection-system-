@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import joblib
 import matplotlib
 
@@ -7,103 +9,224 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import shap
 
-from sklearn.model_selection import train_test_split
-
-from src.data import PROJECT_ROOT, load_dataset
+from src.data import PROJECT_ROOT
 
 
-MODEL_PATH = PROJECT_ROOT / "models" / "svm_tuned.pkl"
+MODEL_PATH = (
+    PROJECT_ROOT
+    / "models"
+    / "final_best_model.pkl"
+)
 
-FIGURE_DIR = PROJECT_ROOT / "reports" / "figures"
-METRICS_DIR = PROJECT_ROOT / "reports" / "metrics"
+REAL_TRAIN_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "processed"
+    / "real_train.csv"
+)
 
-FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-METRICS_DIR.mkdir(parents=True, exist_ok=True)
+REAL_TEST_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "processed"
+    / "real_test.csv"
+)
+
+FIGURE_DIR = (
+    PROJECT_ROOT
+    / "reports"
+    / "figures"
+)
+
+METRICS_DIR = (
+    PROJECT_ROOT
+    / "reports"
+    / "metrics"
+)
+
+TARGET_COLUMN = "malignant"
 
 
-def main():
+FIGURE_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
 
-    print("=" * 70)
-    print("Loading Tuned SVM Model")
-    print("=" * 70)
+METRICS_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
 
-    model = joblib.load(MODEL_PATH)
 
-    # Load dataset
-    X, y = load_dataset()
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
 
-    # Create same train-test split used during tuning
-    _, X_test, _, y_test = train_test_split(
-        X,
-        y,
-        test_size=0.2,
-        random_state=42,
-        stratify=y,
+    train_df = pd.read_csv(
+        REAL_TRAIN_PATH
     )
 
-    print(f"Test samples available: {len(X_test)}")
-
-    # Smaller sample sizes are used because
-    # model-agnostic SHAP explanation can be slow.
-    background = X_test.sample(
-        n=min(50, len(X_test)),
-        random_state=42,
+    test_df = pd.read_csv(
+        REAL_TEST_PATH
     )
 
-    explain_samples = X_test.sample(
-        n=min(30, len(X_test)),
-        random_state=42,
-    )
+    feature_names = [
+        column
+        for column in train_df.columns
+        if column != TARGET_COLUMN
+    ]
 
-    # -------------------------------------------------------
-    # Create SHAP Explainer
-    # -------------------------------------------------------
+    X_train = train_df[
+        feature_names
+    ].copy()
 
-    print("\nCreating SHAP explainer...")
+    X_test = test_df[
+        feature_names
+    ].copy()
 
-    explainer = shap.Explainer(
+    y_test = test_df[
+        TARGET_COLUMN
+    ].copy()
+
+    return X_train, X_test, y_test
+
+
+def create_explainer(
+    model: object,
+    background: pd.DataFrame,
+) -> shap.Explainer:
+
+    return shap.Explainer(
         model.predict_proba,
         background,
         algorithm="permutation",
     )
 
-    print("Calculating SHAP values...")
 
-    shap_values = explainer(explain_samples)
+def main() -> None:
 
-    # predict_proba output:
+    print("=" * 70)
+    print("PRODUCTION MODEL SHAP EXPLAINABILITY")
+    print("=" * 70)
+
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(
+            f"Production model not found: {MODEL_PATH}"
+        )
+
+    print(
+        f"\nLoading production model:\n{MODEL_PATH}"
+    )
+
+    model = joblib.load(
+        MODEL_PATH
+    )
+
+    X_train, X_test, y_test = load_data()
+
+    print(
+        f"Training samples : {len(X_train)}"
+    )
+
+    print(
+        f"Test samples     : {len(X_test)}"
+    )
+
+    print(
+        f"Features         : {X_train.shape[1]}"
+    )
+
+
+    # -------------------------------------------------------
+    # Keep sample sizes small because permutation SHAP
+    # is computationally expensive for calibrated SVM models.
+    # -------------------------------------------------------
+
+    background = X_train.sample(
+        n=min(
+            40,
+            len(X_train),
+        ),
+        random_state=42,
+    )
+
+    explain_samples = X_test.sample(
+        n=min(
+            20,
+            len(X_test),
+        ),
+        random_state=42,
+    )
+
+
+    # -------------------------------------------------------
+    # SHAP Explainer
+    # -------------------------------------------------------
+
+    print(
+        "\nCreating permutation SHAP explainer..."
+    )
+
+    explainer = create_explainer(
+        model,
+        background,
+    )
+
+
+    print(
+        "Calculating SHAP values..."
+    )
+
+    shap_values = explainer(
+        explain_samples
+    )
+
+
+    # predict_proba:
     # class 0 = Benign
     # class 1 = Malignant
-    malignant_shap = shap_values[:, :, 1]
+
+    malignant_shap = (
+        shap_values[:, :, 1]
+    )
+
 
     # -------------------------------------------------------
     # Global SHAP Summary Plot
     # -------------------------------------------------------
 
-    print("\nGenerating SHAP summary plot...")
+    print(
+        "\nGenerating SHAP summary plot..."
+    )
 
     shap.summary_plot(
         malignant_shap.values,
         explain_samples,
-        feature_names=X.columns,
+        feature_names=X_train.columns,
         show=False,
     )
 
     plt.tight_layout()
 
+    summary_path = (
+        FIGURE_DIR
+        / "shap_summary_plot.png"
+    )
+
     plt.savefig(
-        FIGURE_DIR / "shap_summary_plot.png",
+        summary_path,
         dpi=200,
         bbox_inches="tight",
     )
 
     plt.close()
 
+
     # -------------------------------------------------------
     # Global SHAP Feature Importance Plot
     # -------------------------------------------------------
 
-    print("Generating SHAP bar importance plot...")
+    print(
+        "Generating SHAP feature importance plot..."
+    )
 
     shap.plots.bar(
         malignant_shap,
@@ -113,25 +236,35 @@ def main():
 
     plt.tight_layout()
 
+    importance_plot_path = (
+        FIGURE_DIR
+        / "shap_feature_importance.png"
+    )
+
     plt.savefig(
-        FIGURE_DIR / "shap_feature_importance.png",
+        importance_plot_path,
         dpi=200,
         bbox_inches="tight",
     )
 
     plt.close()
 
+
     # -------------------------------------------------------
-    # Save Numerical SHAP Feature Importance
+    # Numerical Global Importance
     # -------------------------------------------------------
 
-    mean_abs_shap = abs(
-        malignant_shap.values
-    ).mean(axis=0)
+    mean_abs_shap = (
+        abs(
+            malignant_shap.values
+        ).mean(
+            axis=0
+        )
+    )
 
     importance_df = pd.DataFrame(
         {
-            "Feature": X.columns,
+            "Feature": X_train.columns,
             "Mean_Absolute_SHAP": mean_abs_shap,
         }
     ).sort_values(
@@ -139,29 +272,39 @@ def main():
         ascending=False,
     )
 
+    importance_csv_path = (
+        METRICS_DIR
+        / "shap_feature_importance.csv"
+    )
+
     importance_df.to_csv(
-        METRICS_DIR / "shap_feature_importance.csv",
+        importance_csv_path,
         index=False,
     )
 
+
     # -------------------------------------------------------
-    # Local SHAP Explanation
+    # Local Explanation
     # -------------------------------------------------------
 
-    print("\nGenerating Local SHAP Explanation...")
+    print(
+        "\nGenerating local SHAP explanation..."
+    )
 
-    # Select first sample from SHAP sample set
     sample_index = 0
 
-    sample_data = explain_samples.iloc[
-        [sample_index]
-    ].copy()
+    sample_data = (
+        explain_samples
+        .iloc[[sample_index]]
+        .copy()
+    )
 
-    sample_explanation = malignant_shap[
-        sample_index
-    ]
+    sample_explanation = (
+        malignant_shap[
+            sample_index
+        ]
+    )
 
-    # Generate local waterfall plot
     shap.plots.waterfall(
         sample_explanation,
         max_display=15,
@@ -170,105 +313,205 @@ def main():
 
     plt.tight_layout()
 
+    local_plot_path = (
+        FIGURE_DIR
+        / "shap_local_waterfall.png"
+    )
+
     plt.savefig(
-        FIGURE_DIR / "shap_local_waterfall.png",
+        local_plot_path,
         dpi=200,
         bbox_inches="tight",
     )
 
     plt.close()
 
+
     # -------------------------------------------------------
     # Local Prediction Details
     # -------------------------------------------------------
 
-    prediction = model.predict(
-        sample_data
-    )[0]
+    malignant_probability = float(
+        model.predict_proba(
+            sample_data
+        )[0][1]
+    )
 
-    probability = model.predict_proba(
-        sample_data
-    )[0][1]
+    predicted_label = int(
+        malignant_probability >= 0.5
+    )
 
-    actual_label = y_test.loc[
-        sample_data.index[0]
-    ]
+    actual_label = int(
+        y_test.loc[
+            sample_data.index[0]
+        ]
+    )
+
 
     local_result = pd.DataFrame(
         {
             "Actual_Label": [
-                int(actual_label)
+                actual_label
             ],
             "Predicted_Label": [
-                int(prediction)
+                predicted_label
             ],
             "Malignant_Probability": [
-                float(probability)
+                malignant_probability
             ],
         }
     )
 
+    local_prediction_path = (
+        METRICS_DIR
+        / "shap_local_prediction.csv"
+    )
+
     local_result.to_csv(
-        METRICS_DIR / "shap_local_prediction.csv",
+        local_prediction_path,
         index=False,
     )
 
+
     # -------------------------------------------------------
-    # Display Results
+    # Top Local Contributing Features
     # -------------------------------------------------------
 
-    print("\nTop 10 SHAP Features")
+    local_values = pd.DataFrame(
+        {
+            "Feature": X_train.columns,
+            "Feature_Value": (
+                sample_data
+                .iloc[0]
+                .values
+            ),
+            "SHAP_Value": (
+                sample_explanation.values
+            ),
+        }
+    )
+
+    local_values[
+        "Absolute_SHAP"
+    ] = (
+        local_values[
+            "SHAP_Value"
+        ].abs()
+    )
+
+    local_values = (
+        local_values
+        .sort_values(
+            "Absolute_SHAP",
+            ascending=False,
+        )
+    )
+
+    local_feature_path = (
+        METRICS_DIR
+        / "shap_local_feature_contributions.csv"
+    )
+
+    local_values.to_csv(
+        local_feature_path,
+        index=False,
+    )
+
+
+    # -------------------------------------------------------
+    # Console Output
+    # -------------------------------------------------------
+
+    print(
+        "\nTop 10 Global SHAP Features"
+    )
+
     print("=" * 70)
 
     print(
         importance_df
         .head(10)
-        .to_string(index=False)
+        .to_string(
+            index=False
+        )
     )
 
-    print("\nLocal Prediction")
+
+    print(
+        "\nTop 10 Local Contributing Features"
+    )
+
     print("=" * 70)
 
     print(
-        f"Actual Label: "
+        local_values[
+            [
+                "Feature",
+                "Feature_Value",
+                "SHAP_Value",
+            ]
+        ]
+        .head(10)
+        .to_string(
+            index=False
+        )
+    )
+
+
+    print(
+        "\nLocal Prediction"
+    )
+
+    print("=" * 70)
+
+    print(
+        f"Actual Label          : "
         f"{'Malignant' if actual_label == 1 else 'Benign'}"
     )
 
     print(
-        f"Predicted Label: "
-        f"{'Malignant' if prediction == 1 else 'Benign'}"
+        f"Predicted Label       : "
+        f"{'Malignant' if predicted_label == 1 else 'Benign'}"
     )
 
     print(
-        f"Malignant Probability: "
-        f"{probability:.4f}"
+        f"Malignant Probability : "
+        f"{malignant_probability:.4f}"
     )
 
-    print("\nSHAP Explainability Completed Successfully")
 
     print(
-        f"\nSummary Plot: "
-        f"{FIGURE_DIR / 'shap_summary_plot.png'}"
+        "\nSHAP explainability completed successfully."
+    )
+
+    print(
+        f"\nSummary Plot           : "
+        f"{summary_path}"
     )
 
     print(
         f"Feature Importance Plot: "
-        f"{FIGURE_DIR / 'shap_feature_importance.png'}"
+        f"{importance_plot_path}"
     )
 
     print(
-        f"Local Waterfall Plot: "
-        f"{FIGURE_DIR / 'shap_local_waterfall.png'}"
+        f"Local Waterfall Plot   : "
+        f"{local_plot_path}"
     )
 
     print(
-        f"SHAP Importance CSV: "
-        f"{METRICS_DIR / 'shap_feature_importance.csv'}"
+        f"Global Importance CSV  : "
+        f"{importance_csv_path}"
     )
 
     print(
-        f"Local Prediction CSV: "
-        f"{METRICS_DIR / 'shap_local_prediction.csv'}"
+        f"Local Prediction CSV   : "
+        f"{local_prediction_path}"
+    )
+
+    print(
+        f"Local Contributions CSV: "
+        f"{local_feature_path}"
     )
 
 

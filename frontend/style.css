@@ -644,3 +644,111 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+/* =====================================================
+   EXPLAINABLE AI
+===================================================== */
+
+.explanation-section {
+    margin-top: 24px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fbfcfe;
+}
+
+.explanation-label {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--blue);
+    margin-bottom: 6px;
+}
+
+.explanation-header h3 {
+    font-size: 17px;
+    color: var(--navy);
+    margin: 0;
+}
+
+.explanation-description {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.top-factors {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.factor-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 13px;
+    background: white;
+}
+
+.factor-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+}
+
+.factor-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: capitalize;
+}
+
+.factor-value {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.factor-direction {
+    margin-top: 7px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.factor-positive {
+    color: var(--red);
+}
+
+.factor-negative {
+    color: var(--green);
+}
+
+.factor-bar {
+    height: 6px;
+    margin-top: 9px;
+    background: #edf1f5;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.factor-bar-fill {
+    height: 100%;
+    border-radius: 20px;
+}
+
+.factor-bar-fill.positive {
+    background: var(--red);
+}
+
+.factor-bar-fill.negative {
+    background: var(--green);
+}
+
+.factor-placeholder {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 14px;
+}
