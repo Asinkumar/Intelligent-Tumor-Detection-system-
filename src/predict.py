@@ -240,6 +240,39 @@ def explain_prediction(
     return factors
 
 
+def save_prediction_record(
+    case_id: str,
+    prediction: str,
+    malignant_probability: float,
+    threshold: float,
+    risk_level: str,
+) -> str:
+
+    prediction_record = pd.DataFrame(
+        [
+            {
+                "Case_ID": case_id,
+                "Predicted_Diagnosis": prediction,
+                "Malignant_Probability": malignant_probability,
+                "Threshold": threshold,
+                "Risk_Level": risk_level,
+            }
+        ]
+    )
+
+    output_path = (
+        REPORT_DIR
+        / f"{case_id}_prediction.csv"
+    )
+
+    prediction_record.to_csv(
+        output_path,
+        index=False,
+    )
+
+    return str(output_path)
+
+
 def predict_from_features(
     features: list[float],
 ) -> dict:
@@ -286,6 +319,14 @@ def predict_from_features(
         top_n=5,
     )
 
+    prediction_file = save_prediction_record(
+        case_id=case_id,
+        prediction=prediction,
+        malignant_probability=malignant_probability,
+        threshold=THRESHOLD,
+        risk_level=risk_level,
+    )
+
     log_event(
         case_id,
         "PREDICTION_CREATED",
@@ -308,6 +349,7 @@ def predict_from_features(
         "decision_threshold": THRESHOLD,
         "risk_level": risk_level,
         "top_factors": top_factors,
+        "prediction_file": prediction_file,
         "disclaimer": (
             "Academic clinical decision-support prototype; "
             "not a substitute for professional medical diagnosis."
@@ -351,45 +393,6 @@ def main() -> None:
         "Malignant"
         if actual_label == 1
         else "Benign"
-    )
-
-    prediction_df = pd.DataFrame(
-        {
-            "Case_ID": [
-                result["case_id"]
-            ],
-            "Actual_Diagnosis": [
-                actual_diagnosis
-            ],
-            "Predicted_Diagnosis": [
-                result["prediction"]
-            ],
-            "Malignant_Probability_Percent": [
-                result[
-                    "malignant_probability"
-                ]
-            ],
-            "Threshold": [
-                result[
-                    "decision_threshold"
-                ]
-            ],
-            "Risk_Level": [
-                result[
-                    "risk_level"
-                ]
-            ],
-        }
-    )
-
-    output_path = (
-        REPORT_DIR
-        / f"{result['case_id']}_prediction.csv"
-    )
-
-    prediction_df.to_csv(
-        output_path,
-        index=False,
     )
 
     print("=" * 70)
@@ -445,7 +448,7 @@ def main() -> None:
 
     print(
         f"\nPrediction saved to  : "
-        f"{output_path}"
+        f"{result['prediction_file']}"
     )
 
     print(
