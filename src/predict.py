@@ -246,19 +246,35 @@ def save_prediction_record(
     malignant_probability: float,
     threshold: float,
     risk_level: str,
+    sample: pd.DataFrame,
 ) -> str:
 
-    prediction_record = pd.DataFrame(
-        [
-            {
-                "Case_ID": case_id,
-                "Predicted_Diagnosis": prediction,
-                "Malignant_Probability": malignant_probability,
-                "Threshold": threshold,
-                "Risk_Level": risk_level,
-            }
-        ]
+    # Keep the original 30 input features.
+    prediction_record = sample.copy()
+
+    # Add Case ID as the first column.
+    prediction_record.insert(
+        0,
+        "Case_ID",
+        case_id,
     )
+
+    # Add prediction metadata.
+    prediction_record[
+        "Predicted_Diagnosis"
+    ] = prediction
+
+    prediction_record[
+        "Malignant_Probability"
+    ] = malignant_probability
+
+    prediction_record[
+        "Threshold"
+    ] = threshold
+
+    prediction_record[
+        "Risk_Level"
+    ] = risk_level
 
     output_path = (
         REPORT_DIR
@@ -325,6 +341,7 @@ def predict_from_features(
         malignant_probability=malignant_probability,
         threshold=THRESHOLD,
         risk_level=risk_level,
+        sample=sample,
     )
 
     log_event(

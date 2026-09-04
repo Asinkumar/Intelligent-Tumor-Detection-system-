@@ -39,16 +39,57 @@ jobs:
           pip install -r requirements.txt
 
       # --------------------------------------------------
-      # 4. Verify Python source code
+      # 4. Install DVC with Google Drive support
+      # --------------------------------------------------
+      - name: Install DVC
+        run: |
+          pip install "dvc[gdrive]==3.67.1"
+          dvc --version
+
+      # --------------------------------------------------
+      # 5. Create Google Drive service-account file
+      # --------------------------------------------------
+      - name: Create Google Drive service account file
+        shell: bash
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > /tmp/gdrive-sa.json
+          chmod 600 /tmp/gdrive-sa.json
+
+      # --------------------------------------------------
+      # 6. Configure DVC Google Drive authentication
+      # --------------------------------------------------
+      - name: Configure DVC remote authentication
+        run: |
+          dvc remote modify storage --local gdrive_use_service_account true
+          dvc remote modify storage --local gdrive_service_account_json_file_path /tmp/gdrive-sa.json
+
+      # --------------------------------------------------
+      # 7. Pull DVC artifacts
+      # --------------------------------------------------
+      - name: Pull DVC artifacts
+        run: |
+          dvc pull
+
+      # --------------------------------------------------
+      # 8. Verify required model files
+      # --------------------------------------------------
+      - name: Verify model artifacts
+        run: |
+          test -f models/final_best_model.pkl
+          test -f models/final_prediction_threshold.txt
+          ls -lh models/
+
+      # --------------------------------------------------
+      # 9. Verify Python source code
       # --------------------------------------------------
       - name: Python syntax check
         run: |
-          python -m compileall app src
+          python -m compileall app src tests
 
       # --------------------------------------------------
-      # 5. Verify important modules can be imported
-      #    Do not import app.main here because the model
-      #    artifacts are stored remotely using DVC.
+      # 10. Verify important modules can be imported
       # --------------------------------------------------
       - name: Verify core dependencies
         run: |
@@ -56,17 +97,17 @@ jobs:
           python -c "import sklearn; print('Scikit-learn OK')"
           python -c "import mlflow; print('MLflow OK')"
           python -c "import pandas; print('Pandas OK')"
+          python -c "import pytest; print('Pytest OK')"
 
       # --------------------------------------------------
-      # 6. Validate DVC installation
+      # 11. Run automated tests
       # --------------------------------------------------
-      - name: Verify DVC
+      - name: Run automated tests
         run: |
-          pip install dvc
-          dvc --version
+          python -m pytest tests -v
 
       # --------------------------------------------------
-      # 7. Build Docker image
+      # 12. Build Docker image
       # --------------------------------------------------
       - name: Build Docker image
         run: |
