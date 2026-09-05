@@ -1,27 +1,43 @@
 # Intelligent Tumor Decision Support System
 
+[![CI](https://github.com/Asinkumar/Intelligent-Tumor-Detection-system-/actions/workflows/ci.yml/badge.svg)](https://github.com/Asinkumar/Intelligent-Tumor-Detection-system-/actions/workflows/ci.yml)
+
+[![CD](https://github.com/Asinkumar/Intelligent-Tumor-Detection-system-/actions/workflows/cd.yml/badge.svg)](https://github.com/Asinkumar/Intelligent-Tumor-Detection-system-/actions/workflows/cd.yml)
+
+[![Docker](https://img.shields.io/badge/Docker-Containerized-blue?logo=docker)](https://hub.docker.com/r/ayesin/tumor-decision-support)
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi)](https://tumor-decision-support.onrender.com/docs)
+
+[![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-945DD6?logo=dvc)](https://dvc.org/)
+
 An end-to-end Explainable AI and MLOps-based clinical decision-support prototype for breast cancer risk classification using the Wisconsin Diagnostic Breast Cancer dataset.
 
 The system predicts whether a tumor record is **Malignant** or **Benign**, estimates malignant probability, assigns a risk level, and provides feature-level explanations for the prediction.
 
 > **Academic Prototype:** This system is intended for research and educational purposes only. It is not clinically validated and must not replace professional medical diagnosis, pathology, imaging, biopsy, or medical advice.
 
+---
+
 ## Live Application
 
 ### Frontend
+
 GitHub Pages:
 
 https://asinkumar.github.io/Intelligent-Tumor-Detection-system-/
 
 ### Backend API
+
 Render:
 
 https://tumor-decision-support.onrender.com/
 
 ### API Health Check
+
 https://tumor-decision-support.onrender.com/health
 
 ### Interactive API Documentation
+
 https://tumor-decision-support.onrender.com/docs
 
 ---
@@ -46,9 +62,12 @@ https://tumor-decision-support.onrender.com/docs
 - Render cloud deployment
 - GitHub Pages frontend deployment
 - Automated testing and validation
+- Continuous-learning / feedback pipeline
+- Model retraining workflow
+- Data drift monitoring
+- Model promotion safety checks
 
 ---
-
 ## System Architecture
 
 ```text
@@ -77,11 +96,93 @@ JSON Response
   |
   v
 Frontend AI Assessment
-```
 
----
+## MLOps Architecture
 
-## Input Features
+```text
+Training Data
+    |
+    v
+Data Validation
+    |
+    v
+Model Training
+    |
+    v
+Model Evaluation
+    |
+    v
+Model Selection
+    |
+    v
+DVC Versioning
+    |
+    +--------------------+
+    |                    |
+    v                    v
+GitHub              Google Drive
+    |                DVC Remote
+    |
+    v
+GitHub Actions CI
+    |
+    +----> Install dependencies
+    |
+    +----> Pull DVC artifacts
+    |
+    +----> Verify model files
+    |
+    +----> Run automated tests
+    |
+    +----> Build Docker image
+    |
+    v
+GitHub Actions CD
+    |
+    +----> Pull DVC artifacts
+    |
+    +----> Docker build
+    |
+    +----> Push to Docker Hub
+    |
+    v
+Render Deployment
+    |
+    v
+Production FastAPI Service
+
+## Continuous Learning and Monitoring
+
+The project also contains a feedback-driven model maintenance workflow.
+
+```text
+Prediction
+    |
+    v
+Doctor / Validated Feedback
+    |
+    v
+Feedback Dataset
+    |
+    v
+Monitoring
+    |
+    +----> Data Drift Detection
+    |
+    v
+Retraining Trigger
+    |
+    v
+Candidate Model
+    |
+    v
+Performance Validation
+    |
+    +----> Promote if better
+    |
+    +----> Reject if unsafe / worse
+
+    ## Input Features
 
 The model uses the 30 diagnostic features from the Wisconsin Diagnostic Breast Cancer dataset.
 
@@ -121,68 +222,30 @@ This improves transparency compared with displaying only the final classificatio
 
 ---
 
-## MLOps Pipeline
-
-The project implements an end-to-end MLOps workflow.
-
-```text
-Dataset
-   |
-   v
-EDA & Data Validation
-   |
-   v
-Model Training
-   |
-   v
-Model Evaluation
-   |
-   v
-Model Selection
-   |
-   v
-DVC Artifact Versioning
-   |
-   v
-GitHub Repository
-   |
-   v
-GitHub Actions CI/CD
-   |
-   +----> Pull model artifacts from DVC
-   |
-   +----> Build Docker Image
-   |
-   +----> Push Docker Image
-   |
-   v
-Render Deployment
-   |
-   v
-Production FastAPI Service
-```
-
----
-
 ## Technology Stack
 
 ### Machine Learning
+
 - Python
 - Scikit-learn
 - Pandas
 - NumPy
 - SHAP
+- MLflow
 
 ### Backend
+
 - FastAPI
 - Uvicorn
 
 ### Frontend
+
 - HTML
 - CSS
 - JavaScript
 
 ### MLOps / DevOps
+
 - Git
 - GitHub
 - GitHub Actions
@@ -192,6 +255,7 @@ Production FastAPI Service
 - Docker Hub
 - Render
 - GitHub Pages
+- Pytest
 
 ---
 
@@ -212,6 +276,15 @@ GET /health
 ```
 
 Used to verify that the deployed API is operational.
+
+Example response:
+
+```json
+{
+  "status": "Healthy",
+  "message": "API is running successfully"
+}
+```
 
 ### Prediction
 
@@ -251,6 +324,13 @@ Example response structure:
 
 ## Local Development
 
+### Clone the repository
+
+```bash
+git clone https://github.com/Asinkumar/Intelligent-Tumor-Detection-system-.git
+cd Intelligent-Tumor-Detection-system-
+```
+
 ### Create and activate virtual environment
 
 ```powershell
@@ -265,10 +345,44 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### Pull DVC artifacts
+
+```powershell
+dvc pull
+```
+
 ### Run the API
 
 ```powershell
 uvicorn app.main:app --reload
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## Run with Docker
+
+Pull the latest production image:
+
+```bash
+docker pull ayesin/tumor-decision-support:latest
+```
+
+Run the container:
+
+```bash
+docker run -p 8000:8000 ayesin/tumor-decision-support:latest
+```
+
+Open:
+
+```text
+http://localhost:8000/docs
 ```
 
 ---
@@ -284,33 +398,86 @@ models/final_best_model.pkl
 models/final_prediction_threshold.txt
 ```
 
+Main tracked directories include:
+
+```text
+data/
+models/
+reports/
+```
+
 To retrieve DVC-managed artifacts in an authenticated development environment:
 
 ```powershell
 dvc pull
 ```
 
-Sensitive Google service-account credentials are stored as CI/CD secrets and must never be committed to the repository.
+Sensitive Google authentication credentials are stored securely for CI/CD and must never be committed to the repository.
 
 ---
 
-## CI/CD
+## CI Pipeline
 
-A push to the `main` branch triggers GitHub Actions.
+A push to the `main` branch triggers the CI workflow.
+
+The CI pipeline:
+
+1. Checks out the repository
+2. Configures Python
+3. Installs project dependencies
+4. Installs DVC with Google Drive support
+5. Authenticates to the DVC remote
+6. Pulls DVC artifacts
+7. Verifies production model files
+8. Runs Python syntax validation
+9. Verifies important dependencies
+10. Runs automated tests
+11. Builds the Docker image
+
+Current status: **Passing**
+
+---
+
+## CD Pipeline
 
 The CD workflow:
 
 1. Checks out the repository
 2. Configures Python
 3. Installs DVC Google Drive support
-4. Authenticates to the DVC remote
+4. Authenticates to Google Drive
 5. Pulls required model artifacts
 6. Verifies the production model files
 7. Authenticates to Docker Hub
-8. Builds the Docker image
-9. Pushes the image to Docker Hub
+8. Sets up Docker Buildx
+9. Builds the production image
+10. Pushes Docker images to Docker Hub
 
-Render then runs the deployed container as the production API service.
+Published tags:
+
+```text
+ayesin/tumor-decision-support:latest
+ayesin/tumor-decision-support:<commit-sha>
+```
+
+Current status: **Passing**
+
+---
+
+## Automated Testing
+
+The project includes automated tests for the application and MLOps workflow.
+
+Tests cover areas such as:
+
+- API behavior
+- continuous-learning workflow
+- feedback processing
+- retraining logic
+- monitoring logic
+- model promotion safeguards
+
+The test suite is executed automatically in GitHub Actions before the Docker build is considered successful.
 
 ---
 
@@ -344,6 +511,7 @@ breast-cancer-mlops/
 |-- models/
 |-- data/
 |-- reports/
+|-- tests/
 |-- frontend/
 |   |-- index.html
 |   |-- style.css
@@ -353,11 +521,17 @@ breast-cancer-mlops/
 |
 |-- .github/
 |   `-- workflows/
+|       |-- ci.yml
+|       `-- cd.yml
 |
 |-- Dockerfile
 |-- requirements.txt
 |-- dvc.yaml
+|-- data.dvc
+|-- models.dvc
+|-- reports.dvc
 |-- .dvc/
+|-- .dvcignore
 `-- README.md
 ```
 
@@ -372,12 +546,37 @@ breast-cancer-mlops/
 | Docker Image | Operational |
 | Render Deployment | Operational |
 | GitHub Pages Frontend | Operational |
+| DVC Remote | Operational |
+| Google Drive Artifact Storage | Operational |
 | CSV Input | Tested |
 | Sample Case | Tested |
 | Manual Entry | Tested |
 | SHAP Explainability | Operational |
+| Continuous Learning | Implemented |
+| Monitoring / Drift Detection | Implemented |
+| Automated Tests | Passing |
 | CI Pipeline | Passing |
 | CD Pipeline | Passing |
+| Docker Hub Push | Passing |
+
+---
+
+## Production URLs
+
+### Frontend
+https://asinkumar.github.io/Intelligent-Tumor-Detection-system-/
+
+### Backend
+https://tumor-decision-support.onrender.com/
+
+### Health Check
+https://tumor-decision-support.onrender.com/health
+
+### API Documentation
+https://tumor-decision-support.onrender.com/docs
+
+### Docker Hub
+https://hub.docker.com/r/ayesin/tumor-decision-support
 
 ---
 
@@ -389,11 +588,22 @@ Predictions and explainability outputs must not be interpreted as medical diagno
 
 The system does not replace:
 
-- qualified healthcare professionals,
-- pathology,
-- imaging,
-- biopsy,
-- clinical examination, or
-- other validated diagnostic procedures.
+- qualified healthcare professionals
+- pathology
+- imaging
+- biopsy
+- clinical examination
+- other validated diagnostic procedures
 
 Any real-world medical decision must be made by appropriately qualified healthcare professionals.
+
+---
+
+## Project Status
+
+**End-to-end MLOps workflow operational.**
+
+The project currently supports:
+
+**Data → Model → DVC → CI → Testing → Docker → CD → Docker Hub → Render → Frontend → Monitoring → Retraining Workflow**
+
