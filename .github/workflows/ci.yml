@@ -40,14 +40,17 @@ jobs:
 
       # --------------------------------------------------
       # 4. Install DVC with Google Drive support
-      #    PyDrive2 is pinned for CI compatibility
+      #    Pin compatible PyDrive2 / OpenSSL stack
       # --------------------------------------------------
       - name: Install DVC
         run: |
           pip install "dvc[gdrive]==3.67.1"
           pip install "PyDrive2==1.19.0"
+          pip install "pyOpenSSL==24.2.1" "cryptography==43.0.3"
+
           dvc --version
           python -c "import pydrive2; print('PyDrive2 OK')"
+          python -c "from OpenSSL import crypto; print('pyOpenSSL OK')"
 
       # --------------------------------------------------
       # 5. Create Google Drive service-account file
