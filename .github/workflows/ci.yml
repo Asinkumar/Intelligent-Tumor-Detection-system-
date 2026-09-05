@@ -40,11 +40,14 @@ jobs:
 
       # --------------------------------------------------
       # 4. Install DVC with Google Drive support
+      #    PyDrive2 is pinned for CI compatibility
       # --------------------------------------------------
       - name: Install DVC
         run: |
           pip install "dvc[gdrive]==3.67.1"
+          pip install "PyDrive2==1.19.0"
           dvc --version
+          python -c "import pydrive2; print('PyDrive2 OK')"
 
       # --------------------------------------------------
       # 5. Create Google Drive service-account file
