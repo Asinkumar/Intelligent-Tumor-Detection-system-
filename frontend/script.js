@@ -13,6 +13,38 @@ const manualSection = document.getElementById("manualSection");
 const csvFile = document.getElementById("csvFile");
 const csvStatus = document.getElementById("csvStatus");
 
+
+/**
+ * Normalise a single CSV cell.
+ * Strips wrapping quotes and whitespace so that
+ * values like  "11.41"  parse as numbers.
+ */
+function sanitizeCell(value) {
+
+    return value
+        .trim()
+        .replace(/^"(.*)"$/, "$1")
+        .replace(/^'(.*)'$/, "$1")
+        .trim();
+
+}
+
+
+/*
+ * Optional trailing columns that may appear in a
+ * user CSV. They are diagnosis labels, not model
+ * inputs, so they are ignored on upload.
+ */
+
+const LABEL_COLUMNS = [
+    "malignant",
+    "diagnosis",
+    "label",
+    "target",
+    "class",
+    "outcome"
+];
+
 const inputStatus = document.getElementById("inputStatus");
 const featureCount = document.getElementById("featureCount");
 
@@ -26,8 +58,14 @@ const riskBadge = document.getElementById("riskBadge");
 const topFactors = document.getElementById("topFactors");
 
 
+const API_BASE =
+    "https://tumor-decision-support.onrender.com";
+
 const API_URL =
-    "https://tumor-decision-support.onrender.com/predict";
+    `${API_BASE}/predict`;
+
+const HEALTH_URL =
+    `${API_BASE}/health`;
 
 
 const sampleFeatures = [
@@ -267,12 +305,16 @@ csvFile.addEventListener(
                     }
 
 
+                    let header = null;
+
                     let values =
                         lines[0]
                             .split(",")
                             .map(
                                 value =>
-                                    value.trim()
+                                    sanitizeCell(
+                                        value
+                                    )
                             );
 
 
@@ -300,14 +342,57 @@ csvFile.addEventListener(
 
                         }
 
+                        header = values;
 
                         values =
                             lines[1]
                                 .split(",")
                                 .map(
                                     value =>
-                                        value.trim()
+                                        sanitizeCell(
+                                            value
+                                        )
                                 );
+
+                    }
+
+
+                    /*
+                     * A trailing diagnosis column is
+                     * optional. When the header names
+                     * it, drop it so only the 30
+                     * feature values remain.
+                     * The model never consumes a
+                     * label on input.
+                     */
+
+                    if (
+                        header &&
+                        values.length > 30
+                    ) {
+
+                        const lastHeader =
+                            String(
+                                header[
+                                    header.length - 1
+                                ]
+                            )
+                                .trim()
+                                .toLowerCase();
+
+                        if (
+                            LABEL_COLUMNS.includes(
+                                lastHeader
+                            )
+                        ) {
+
+                            values =
+                                values.slice(
+                                    0,
+                                    30
+                                );
+
+                        }
 
                     }
 
@@ -780,6 +865,9 @@ form.addEventListener(
             riskLevel.className =
                 "";
 
+            probabilityValue.className =
+                "probability-value";
+
 
             const risk =
                 String(
@@ -802,8 +890,12 @@ form.addEventListener(
                     "high-risk"
                 );
 
+                probabilityValue.classList.add(
+                    "high-risk"
+                );
+
                 probabilityBar.style.background =
-                    "#d64545";
+                    "#ff5c7a";
 
 
             } else if (
@@ -821,8 +913,12 @@ form.addEventListener(
                     "moderate-risk"
                 );
 
+                probabilityValue.classList.add(
+                    "moderate-risk"
+                );
+
                 probabilityBar.style.background =
-                    "#d9822b";
+                    "#ffb547";
 
 
             } else {
@@ -838,8 +934,12 @@ form.addEventListener(
                     "low-risk"
                 );
 
+                probabilityValue.classList.add(
+                    "low-risk"
+                );
+
                 probabilityBar.style.background =
-                    "#15966a";
+                    "#2ee6a8";
 
             }
 
@@ -916,3 +1016,154 @@ form.addEventListener(
 ===================================================== */
 
 updateFeatureStatus();
+
+/* =====================================================
+   LIVE API STATUS
+===================================================== */
+
+const systemStatus =
+    document.getElementById("systemStatus");
+
+const statusText =
+    document.getElementById("statusText");
+
+
+function setStatus(
+    state,
+    label
+) {
+
+    systemStatus.classList.remove(
+        "is-checking",
+        "is-offline"
+    );
+
+    if (state === "checking") {
+
+        systemStatus.classList.add(
+            "is-checking"
+        );
+
+    }
+
+    if (state === "offline") {
+
+        systemStatus.classList.add(
+            "is-offline"
+        );
+
+    }
+
+    statusText.textContent = label;
+
+}
+
+
+async function checkApiHealth() {
+
+    setStatus("checking", "Checking API");
+
+    try {
+
+        const response = await fetch(
+            HEALTH_URL,
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unhealthy"
+            );
+
+        }
+
+        setStatus(
+            "online",
+            "AI System Online"
+        );
+
+    } catch (error) {
+
+        setStatus(
+            "offline",
+            "API Offline"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SCROLL REVEAL
+===================================================== */
+
+function setupScrollReveal() {
+
+    const targets =
+        document.querySelectorAll(
+            ".architecture-card, " +
+            ".metric-tile, " +
+            ".stage-card, " +
+            ".section-heading, " +
+            ".block-heading, " +
+            ".matrix-table, " +
+            ".error-callout"
+        );
+
+    if (!("IntersectionObserver" in window)) {
+
+        targets.forEach(
+            el => el.classList.add("is-visible")
+        );
+
+        return;
+
+    }
+
+    const observer =
+        new IntersectionObserver(
+            (entries) => {
+
+                entries.forEach(
+                    entry => {
+
+                        if (entry.isIntersecting) {
+
+                            entry.target.classList.add(
+                                "is-visible"
+                            );
+
+                            observer.unobserve(
+                                entry.target
+                            );
+
+                        }
+
+                    }
+                );
+
+            },
+            {
+                threshold: 0.12,
+                rootMargin: "0px 0px -40px 0px"
+            }
+        );
+
+    targets.forEach(el => {
+
+        el.classList.add("reveal");
+
+        observer.observe(el);
+
+    });
+
+}
+
+
+checkApiHealth();
+setupScrollReveal();

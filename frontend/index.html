@@ -53,11 +53,13 @@
     </div>
 
 
-    <div class="system-status">
+    <div class="system-status" id="systemStatus">
 
         <span class="status-dot"></span>
 
-        AI System Online
+        <span id="statusText">
+            Checking API
+        </span>
 
     </div>
 
@@ -1156,6 +1158,641 @@
 
 </main>
 
+
+
+<!-- =====================================================
+     CSV DATA FORMAT
+     ====================================================== -->
+
+<section class="csv-section">
+
+    <div class="csv-section-inner">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                INPUT FORMAT
+            </span>
+
+            <h2>
+                CSV Structure
+                &amp; Column Order
+            </h2>
+
+            <p>
+                Uploading a CSV requires exactly 30 numeric
+                values in the fixed order below. Column order
+                is significant — the model has no feature
+                names, only positions.
+            </p>
+
+        </div>
+
+
+        <div class="csv-rules">
+
+            <div class="csv-rule">
+                <span class="csv-rule-label">
+                    Rows read
+                </span>
+                <span class="csv-rule-value">
+                    First data row only
+                </span>
+            </div>
+
+            <div class="csv-rule">
+                <span class="csv-rule-label">
+                    Required values
+                </span>
+                <span class="csv-rule-value">
+                    Exactly 30
+                </span>
+            </div>
+
+            <div class="csv-rule">
+                <span class="csv-rule-label">
+                    Header row
+                </span>
+                <span class="csv-rule-value">
+                    Optional
+                </span>
+            </div>
+
+            <div class="csv-rule">
+                <span class="csv-rule-label">
+                    Label column
+                </span>
+                <span class="csv-rule-value">
+                    Ignored if present
+                </span>
+            </div>
+
+            <div class="csv-rule">
+                <span class="csv-rule-label">
+                    Quoted values
+                </span>
+                <span class="csv-rule-value">
+                    Accepted
+                </span>
+            </div>
+
+            <div class="csv-rule">
+                <span class="csv-rule-label">
+                    Delimiter
+                </span>
+                <span class="csv-rule-value">
+                    Comma
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- ---------- column order ---------- -->
+
+        <h3 class="block-heading">
+            Column Order (1–30)
+        </h3>
+
+        <div class="column-groups">
+
+            <div class="column-group">
+
+                <div class="column-group-head">
+                    <span class="column-group-title">
+                        Mean Measurements
+                    </span>
+                    <span class="column-group-range">
+                        1–10
+                    </span>
+                </div>
+
+                <ol class="column-list">
+                    <li><span class="col-idx">01</span>mean radius</li>
+                    <li><span class="col-idx">02</span>mean texture</li>
+                    <li><span class="col-idx">03</span>mean perimeter</li>
+                    <li><span class="col-idx">04</span>mean area</li>
+                    <li><span class="col-idx">05</span>mean smoothness</li>
+                    <li><span class="col-idx">06</span>mean compactness</li>
+                    <li><span class="col-idx">07</span>mean concavity</li>
+                    <li><span class="col-idx">08</span>mean concave points</li>
+                    <li><span class="col-idx">09</span>mean symmetry</li>
+                    <li><span class="col-idx">10</span>mean fractal dimension</li>
+                </ol>
+
+            </div>
+
+            <div class="column-group">
+
+                <div class="column-group-head">
+                    <span class="column-group-title">
+                        Measurement Errors
+                    </span>
+                    <span class="column-group-range">
+                        11–20
+                    </span>
+                </div>
+
+                <ol class="column-list">
+                    <li><span class="col-idx">11</span>radius error</li>
+                    <li><span class="col-idx">12</span>texture error</li>
+                    <li><span class="col-idx">13</span>perimeter error</li>
+                    <li><span class="col-idx">14</span>area error</li>
+                    <li><span class="col-idx">15</span>smoothness error</li>
+                    <li><span class="col-idx">16</span>compactness error</li>
+                    <li><span class="col-idx">17</span>concavity error</li>
+                    <li><span class="col-idx">18</span>concave points error</li>
+                    <li><span class="col-idx">19</span>symmetry error</li>
+                    <li><span class="col-idx">20</span>fractal dimension error</li>
+                </ol>
+
+            </div>
+
+            <div class="column-group">
+
+                <div class="column-group-head">
+                    <span class="column-group-title">
+                        Worst Measurements
+                    </span>
+                    <span class="column-group-range">
+                        21–30
+                    </span>
+                </div>
+
+                <ol class="column-list">
+                    <li><span class="col-idx">21</span>worst radius</li>
+                    <li><span class="col-idx">22</span>worst texture</li>
+                    <li><span class="col-idx">23</span>worst perimeter</li>
+                    <li><span class="col-idx">24</span>worst area</li>
+                    <li><span class="col-idx">25</span>worst smoothness</li>
+                    <li><span class="col-idx">26</span>worst compactness</li>
+                    <li><span class="col-idx">27</span>worst concavity</li>
+                    <li><span class="col-idx">28</span>worst concave points</li>
+                    <li><span class="col-idx">29</span>worst symmetry</li>
+                    <li><span class="col-idx">30</span>worst fractal dimension</li>
+                </ol>
+
+            </div>
+
+        </div>
+
+
+        <!-- ---------- example ---------- -->
+
+        <h3 class="block-heading">
+            Example
+        </h3>
+
+        <div class="example-grid">
+
+            <div class="example-card">
+
+                <div class="example-head">
+                    <span class="example-badge">
+                        With header
+                    </span>
+                    <span class="example-note">
+                        31 columns — the trailing
+                        malignant label is ignored
+                    </span>
+                </div>
+
+<pre class="code-block"><code>"mean radius","mean texture",...,"worst fractal dimension","malignant"
+11.41,10.82,73.34,403.3,0.09373,...,510.5,0.1548,...,0.08523,0</code></pre>
+
+            </div>
+
+            <div class="example-card">
+
+                <div class="example-head">
+                    <span class="example-badge">
+                        Headerless
+                    </span>
+                    <span class="example-note">
+                        Exactly 30 values,
+                        in order
+                    </span>
+                </div>
+
+<pre class="code-block"><code>11.41,10.82,73.34,403.3,0.09373,
+0.06685,0.03512,0.02623,0.1667,0.06113,
+0.1408,0.4607,1.103,10.5,0.00604,
+0.01529,0.01514,0.00646,0.01344,0.002206,
+12.82,15.97,83.74,510.5,0.1548,
+0.239,0.2102,0.08958,0.3016,0.08523</code></pre>
+
+            </div>
+
+        </div>
+
+
+        <div class="api-shape">
+            <span class="api-shape-label">
+                Equivalent API payload
+            </span>
+
+<pre class="code-block"><code>POST /predict
+{
+  "features": [
+    11.41, 10.82, 73.34, 403.3, 0.09373,
+    0.06685, 0.03512, 0.02623, 0.1667, 0.06113,
+    0.1408, 0.4607, 1.103, 10.5, 0.00604,
+    0.01529, 0.01514, 0.00646, 0.01344, 0.002206,
+    12.82, 15.97, 83.74, 510.5, 0.1548,
+    0.239, 0.2102, 0.08958, 0.3016, 0.08523
+  ]
+}</code></pre>
+
+        </div>
+
+
+        <div class="csv-warning">
+            <strong>
+                Column order matters.
+            </strong>
+            The model receives a positional array, so
+            swapping two columns produces a valid-looking
+            request with meaningless results. Verify the
+            order before uploading, or use the manual
+            entry form which labels each field.
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     MODEL PERFORMANCE
+     ====================================================== -->
+
+<section class="model-section">
+
+    <div class="model-section-inner">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                MODEL PERFORMANCE
+            </span>
+
+            <h2>
+                Classification Model
+                &amp; Evaluation
+            </h2>
+
+            <p>
+                The production classifier is a calibrated
+                Support Vector Machine evaluated on an
+                untouched held-out test set. Model selection
+                prioritised malignant-case recall over raw
+                accuracy to minimise missed cancers.
+            </p>
+
+        </div>
+
+
+        <!-- ---------- Architecture ---------- -->
+
+        <div class="architecture-card">
+
+            <h3>Model Architecture</h3>
+
+            <div class="pipeline">
+
+                <div class="pipeline-node">
+                    <span class="pipeline-label">
+                        Input
+                    </span>
+                    <span class="pipeline-value">
+                        30 features
+                    </span>
+                </div>
+
+                <span class="pipeline-arrow">
+                    &rarr;
+                </span>
+
+                <div class="pipeline-node">
+                    <span class="pipeline-label">
+                        Scaling
+                    </span>
+                    <span class="pipeline-value">
+                        StandardScaler
+                    </span>
+                </div>
+
+                <span class="pipeline-arrow">
+                    &rarr;
+                </span>
+
+                <div class="pipeline-node">
+                    <span class="pipeline-label">
+                        Classifier
+                    </span>
+                    <span class="pipeline-value">
+                        SVC (RBF)
+                    </span>
+                </div>
+
+                <span class="pipeline-arrow">
+                    &rarr;
+                </span>
+
+                <div class="pipeline-node">
+                    <span class="pipeline-label">
+                        Calibration
+                    </span>
+                    <span class="pipeline-value">
+                        Sigmoid (cv=5)
+                    </span>
+                </div>
+
+                <span class="pipeline-arrow">
+                    &rarr;
+                </span>
+
+                <div class="pipeline-node pipeline-node-active">
+                    <span class="pipeline-label">
+                        Output
+                    </span>
+                    <span class="pipeline-value">
+                        Malignant prob.
+                    </span>
+                </div>
+
+            </div>
+
+            <ul class="detail-list">
+                <li>
+                    <span>Class weighting</span>
+                    <strong>Balanced</strong>
+                </li>
+                <li>
+                    <span>Decision threshold</span>
+                    <strong>0.50</strong>
+                </li>
+                <li>
+                    <span>Explainability</span>
+                    <strong>SHAP (permutation)</strong>
+                </li>
+                <li>
+                    <span>Training data</span>
+                    <strong>455 real records</strong>
+                </li>
+                <li>
+                    <span>Synthetic augmentation</span>
+                    <strong>CTGAN evaluated, not used</strong>
+                </li>
+            </ul>
+
+        </div>
+
+
+        <!-- ---------- Accuracy ---------- -->
+
+        <h3 class="block-heading">
+            Accuracy on Held-Out Test Set
+        </h3>
+
+        <div class="metric-grid">
+
+            <div class="metric-tile metric-tile-hero">
+                <span class="metric-tile-value">
+                    98.25%
+                </span>
+                <span class="metric-tile-label">
+                    Accuracy
+                </span>
+            </div>
+
+            <div class="metric-tile">
+                <span class="metric-tile-value">
+                    97.62%
+                </span>
+                <span class="metric-tile-label">
+                    Recall (malignant)
+                </span>
+            </div>
+
+            <div class="metric-tile">
+                <span class="metric-tile-value">
+                    97.62%
+                </span>
+                <span class="metric-tile-label">
+                    Precision
+                </span>
+            </div>
+
+            <div class="metric-tile">
+                <span class="metric-tile-value">
+                    97.62%
+                </span>
+                <span class="metric-tile-label">
+                    F1 Score
+                </span>
+            </div>
+
+            <div class="metric-tile">
+                <span class="metric-tile-value">
+                    99.50%
+                </span>
+                <span class="metric-tile-label">
+                    ROC-AUC
+                </span>
+            </div>
+
+            <div class="metric-tile">
+                <span class="metric-tile-value">
+                    98.61%
+                </span>
+                <span class="metric-tile-label">
+                    Specificity
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- ---------- Confusion matrix ---------- -->
+
+        <div class="split-row">
+
+            <div class="architecture-card">
+
+                <h3>Confusion Matrix</h3>
+
+                <table class="matrix-table">
+
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                Pred. Benign
+                            </th>
+                            <th>
+                                Pred. Malignant
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <th>
+                                Actual Benign
+                            </th>
+                            <td class="matrix-tn">
+                                71
+                            </td>
+                            <td class="matrix-fp">
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Actual Malignant
+                            </th>
+                            <td class="matrix-fn">
+                                1
+                            </td>
+                            <td class="matrix-tp">
+                                41
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="architecture-card">
+
+                <h3>Clinical Error Priority</h3>
+
+                <div class="error-callout">
+
+                    <span class="error-callout-value">
+                        1
+                    </span>
+
+                    <span class="error-callout-label">
+                        False negative
+                    </span>
+
+                </div>
+
+                <p class="error-note">
+                    A false negative is a malignant tumour
+                    classified as benign. Model selection and
+                    promotion gates rank recall above accuracy,
+                    so this count can never silently increase.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ---------- Pipeline summary ---------- -->
+
+        <h3 class="block-heading">
+            Reproducible Pipeline
+        </h3>
+
+        <div class="stage-grid">
+
+            <div class="stage-card">
+                <span class="stage-index">01</span>
+                <span class="stage-name">Data</span>
+                <span class="stage-note">
+                    569 records, 30 features,
+                    no missing values
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">02</span>
+                <span class="stage-name">Split</span>
+                <span class="stage-note">
+                    80/20 stratified, leakage-free
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">03</span>
+                <span class="stage-name">
+                    Synthetic
+                </span>
+                <span class="stage-note">
+                    CTGAN, 1000 rows generated
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">04</span>
+                <span class="stage-name">
+                    Baselines
+                </span>
+                <span class="stage-note">
+                    5 classifiers, 5-fold CV
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">05</span>
+                <span class="stage-name">
+                    Tuning
+                </span>
+                <span class="stage-note">
+                    Grid search on 3 models
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">06</span>
+                <span class="stage-name">
+                    Selection
+                </span>
+                <span class="stage-note">
+                    Recall-first, real-only won
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">07</span>
+                <span class="stage-name">
+                    Explainability
+                </span>
+                <span class="stage-note">
+                    SHAP global and local
+                </span>
+            </div>
+
+            <div class="stage-card">
+                <span class="stage-index">08</span>
+                <span class="stage-name">
+                    Monitoring
+                </span>
+                <span class="stage-note">
+                    Drift detection and
+                    guarded retraining
+                </span>
+            </div>
+
+        </div>
+
+
+        <p class="model-disclaimer">
+            Reported figures come from a single stratified
+            split on the Wisconsin Diagnostic Breast Cancer
+            dataset. They are research results on a benchmark
+            dataset, not validated clinical performance.
+        </p>
+
+    </div>
+
+</section>
 
 
 <!-- =====================================================
